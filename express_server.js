@@ -1,4 +1,3 @@
-app.set("view engine", "ejs")
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
@@ -31,6 +30,11 @@ app.get("/set", (req, res) => {
 
 app.get("/fetch", (req, res) => {
   res.send(`a = ${a}`);
+});
+
+app.get("/urls", (req, res) => {
+  const templateVars = { urls: urlDatabase };
+  res.render("urls_index", templateVars);
 });
 
 app.listen(PORT, () => {

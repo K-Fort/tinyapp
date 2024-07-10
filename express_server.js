@@ -19,7 +19,6 @@ const generateRandomString = () =>
   ).join('');
 
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -37,14 +36,6 @@ app.get("/fetch", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase, username: req.cookies["username"] };
-  res.render("urls_index", templateVars);
-});
-
-app.get("/urls", (req, res) => {
-  const templateVars = {
-    username: req.cookies["username"],
-    urls: urlDatabase,  // Add this line to pass urlDatabase to the template
-  };
   res.render("urls_index", templateVars);
 });
 
@@ -99,8 +90,12 @@ app.post('/urls/:id/update', (req, res) => {
 
 app.post('/login', (req, res) => {
   const username = req.body.username;
-  console.log(`Received login request for username: ${username}`);
   res.cookie('username', username);
+  res.redirect('/urls');
+});
+
+app.post('/logout', (req, res) => {
+  res.clearCookie('username');
   res.redirect('/urls');
 });
 
@@ -125,6 +120,3 @@ app.get("/urls.json", (req, res) => {
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
-
-
-

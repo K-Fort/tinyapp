@@ -21,17 +21,11 @@ const generateRandomString = () =>
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
-
-app.get("/set", (req, res) => {
-  const a = 1;
-  res.send(`a = ${a}`);
-});
-
-app.get("/fetch", (req, res) => {
-  res.send(`a = ${a}`);
+app.get('/register', (req, res) => {
+  const templateVars = {
+    username: req.cookies['username'],
+  };
+  res.render('register', templateVars);
 });
 
 app.get("/urls", (req, res) => {

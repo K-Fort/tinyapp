@@ -40,8 +40,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.get('/register', (req, res) => {
+  const user = userCookieId(req);
   const templateVars = {
-    username: req.cookies['username'],
+    user: user,
   };
   res.render('register', templateVars);
 });
@@ -86,17 +87,25 @@ app.post('/register', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  res.render('login');
+  const user = userCookieId(req);
+  const templateVars = {
+    user: user,
+  };
+  res.render('login', templateVars);
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, username: req.cookies["username"] };
+  const user = userCookieId(req);
+  const templateVars = { urls: urlDatabase,
+     user: user,
+    };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
+  const user = userCookieId(req);
   const templateVars = {
-    username: req.cookies["username"],
+    user: user,
   };
   res.render("urls_new", templateVars);
 });
@@ -144,14 +153,24 @@ app.post('/urls/:id/update', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  const username = req.body.username;
-  res.cookie('username', username);
+  const { email, password } = req.body;
+
+  const user = getUserByEmail(email);
+
+  if (!user) {
+    return res.status(403).send("Invalid Email");
+  }
+  if (user.password !== password) {
+    return res.status(403).send("Incorrect password");
+  }
+
+  res.cookie('user_id', user.id);
   res.redirect('/urls');
 });
 
 app.post('/logout', (req, res) => {
-  res.clearCookie('username');
-  res.redirect('/urls');
+  res.clearCookie('user_id');
+  res.redirect('/login');
 });
 
 app.get("/urls/:id/edit", (req, res) => {

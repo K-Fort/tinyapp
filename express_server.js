@@ -46,11 +46,27 @@ app.get('/register', (req, res) => {
   res.render('register', templateVars);
 });
 
+
+const getUserByEmail = (email, users) => {
+  for (const userID in users) {
+    if (users[userID].email === email) {
+      return users[userID];
+    }
+  }
+  return undefined;
+};
+
 app.post('/register', (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
     return res.status(400).send('Email and password cannot be empty');
+  }
+
+  
+  const existingUser = getUserByEmail(email, users);
+  if (existingUser) {
+    return res.status(400).send('Email already registered');
   }
 
   const userID = generateRandomString();
@@ -64,7 +80,7 @@ app.post('/register', (req, res) => {
   users[userID] = newUser;
 
   res.cookie('user_id', userID);
-  console.log(users); // Test: Output the users object to verify the new user is added
+  console.log(users);
 
   res.redirect('/urls');
 });

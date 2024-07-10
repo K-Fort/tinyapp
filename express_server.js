@@ -1,8 +1,8 @@
 const express = require("express");
-const app = express();
-const PORT = 8080; // default port 8080
 const cookieParser = require('cookie-parser');
+const PORT = 8080; // default port 8080
 
+const app = express();
 app.set("view engine", "ejs");
 
 const urlDatabase = {
@@ -17,10 +17,9 @@ const generateRandomString = () =>
       .charAt(Math.floor(Math.random() * 62))
   ).join('');
 
-// A good rule of thumb to follow is that routes should be ordered from most specific to least specific.
-
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -36,18 +35,28 @@ app.get("/fetch", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = {
+    username: req.cookies["username"],
+    urls: urlDatabase,  // Add this line to pass urlDatabase to the template
+  };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = {
+    username: req.cookies["username"],
+  };
+  res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
   const longURL = urlDatabase[id];
-  const templateVars = { id: id, longURL: longURL };
+  const templateVars = {
+    username: req.cookies["username"],
+    id: id,
+    longURL: longURL,
+  };
   res.render("urls_show", templateVars);
 });
 
@@ -89,6 +98,16 @@ app.post('/login', (req, res) => {
   res.redirect('/urls');
 });
 
+app.get("/urls/:id/edit", (req, res) => {
+  const editId = req.params.id;
+
+  const templateVars = {
+    editId: editId,
+    urlDatabase: urlDatabase[editId],
+  };
+  res.render("edit-form", templateVars);
+});
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port: ${PORT}!`);
 });
@@ -100,5 +119,6 @@ app.get("/urls.json", (req, res) => {
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
+
 
 

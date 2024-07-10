@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
+const cookieParser = require('cookie-parser');
 
 app.set("view engine", "ejs");
 
@@ -19,6 +20,7 @@ const generateRandomString = () =>
 // A good rule of thumb to follow is that routes should be ordered from most specific to least specific.
 
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -77,6 +79,13 @@ app.post('/urls/:id/update', (req, res) => {
   const id = req.params.id;
   const newLongURL = req.body.longURL;
   urlDatabase[id] = newLongURL;
+  res.redirect('/urls');
+});
+
+app.post('/login', (req, res) => {
+  const username = req.body.username;
+  console.log(`Received login request for username: ${username}`);
+  res.cookie('username', username);
   res.redirect('/urls');
 });
 

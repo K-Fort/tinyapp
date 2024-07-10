@@ -85,6 +85,10 @@ app.post('/register', (req, res) => {
   res.redirect('/urls');
 });
 
+app.get('/login', (req, res) => {
+  res.render('login');
+});
+
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase, username: req.cookies["username"] };
   res.render("urls_index", templateVars);
@@ -171,3 +175,4 @@ app.get("/urls.json", (req, res) => {
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
+

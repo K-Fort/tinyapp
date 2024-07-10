@@ -16,20 +16,16 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <% if (user) { %>
-          <div class="navbar-text">Logged in as: <%= user.email %></div>
-          <form action="/logout" method="POST">
-            <button type="submit">Logout</button>
-          </form>
+        <% if (!user) { %>
+          <a class="nav-item nav-link" href="/register">Register</a>
+          <a class="nav-item nav-link" href="/login">Login</a>
         <% } else { %>
-          <form action="/login" method="post">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-            <button type="submit">Login</button>
+          <div class="navbar-text">Logged in as: <%= user.email %></div>
+          <form action="/logout" method="POST" class="nav-item">
+            <button type="submit" class="nav-link">Logout</button>
           </form>
         <% } %>
       </div>
     </div>
   </nav>
 </header>
-

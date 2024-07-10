@@ -11,6 +11,24 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com",
 };
 
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
+
+const userCookieId = function(req) {
+  const userID = req.cookies["user_id"];
+  return users[userID] || null;
+};
+
 // Function to generate a random string of 6 alphanumeric characters
 const generateRandomString = () =>
   Array.from({ length: 6 }, () =>
@@ -26,6 +44,29 @@ app.get('/register', (req, res) => {
     username: req.cookies['username'],
   };
   res.render('register', templateVars);
+});
+
+app.post('/register', (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).send('Email and password cannot be empty');
+  }
+
+  const userID = generateRandomString();
+
+  const newUser = {
+    id: userID,
+    email: email,
+    password: password,
+  };
+
+  users[userID] = newUser;
+
+  res.cookie('user_id', userID);
+  console.log(users); // Test: Output the users object to verify the new user is added
+
+  res.redirect('/urls');
 });
 
 app.get("/urls", (req, res) => {

@@ -1,7 +1,7 @@
 // Import the necessary modules
 const express = require("express");
 const bcrypt = require('bcryptjs');
-const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session')
 const app = express();
 const PORT = 8080; // Set the port to 8080
 
@@ -35,7 +35,7 @@ const users = {
 app.set("view engine", "ejs"); // Set EJS as the templating engine
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies (from forms)
 app.use(express.json()); // Parse JSON bodies (from AJAX requests)
-app.use(cookieParser()); // Parse cookies
+app.use(cookieSession()); // Parse cookies
 
 // Helper functions
 
@@ -58,7 +58,7 @@ const getUserByEmail = (email) => {
 
 // Gets the user object associated with the cookie
 const userCookieId = (req) => {
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
   return users[userID] || null;
 };
 
@@ -119,11 +119,6 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
   const user = getUserByEmail(email); // Find user by email
-  const hashedPassword = bcrypt.hashSync(password, 10);
-
-  if (!user || user.password !== password) {
-    return res.status(403).send("Invalid credentials"); // Check if email or password is incorrect
-  }
 
   if (!bcrypt.compareSync(password, user.password)) {
     return res.status(403).send("Invalid credentials");

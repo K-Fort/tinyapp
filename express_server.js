@@ -35,7 +35,10 @@ const users = {
 app.set("view engine", "ejs"); // Set EJS as the templating engine
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies (from forms)
 app.use(express.json()); // Parse JSON bodies (from AJAX requests)
-app.use(cookieSession()); // Parse cookies
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2']
+}));; // Parse cookies
 
 // Helper functions
 
@@ -102,7 +105,7 @@ app.post('/register', (req, res) => {
   users[userID] = newUser; // Add new user to the users database
 
   
-  res.cookie('user_id', userID); // Set a cookie with the user ID
+  req.session['user_id'] = userID; // Set a cookie with the user ID
   res.redirect('/urls'); // Redirect to URLs page
 });
 
@@ -124,13 +127,13 @@ app.post('/login', (req, res) => {
     return res.status(403).send("Invalid credentials");
   }
 
-  res.cookie('user_id', user.id); // Set a cookie with the user ID
+ req.session['user_id'] = userID; // Set a cookie with the user ID
   res.redirect('/urls'); // Redirect to URLs page
 });
 
 // Handle logout
 app.post('/logout', (req, res) => {
-  res.clearCookie('user_id'); // Clear the user ID cookie
+  req.session['user_id'] = null; // Clear the user ID cookie
   res.redirect('/login'); // Redirect to login page
 });
 

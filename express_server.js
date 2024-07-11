@@ -41,6 +41,9 @@ app.use(express.json());
 
 app.get('/register', (req, res) => {
   const user = userCookieId(req);
+  if (user) {
+    return res.redirect("./urls");
+  }
   const templateVars = {
     user: user,
   };
@@ -88,6 +91,9 @@ app.post('/register', (req, res) => {
 
 app.get('/login', (req, res) => {
   const user = userCookieId(req);
+  if (user) {
+    return res.redirect("./urls");
+  }
   const templateVars = {
     user: user,
   };
@@ -96,14 +102,18 @@ app.get('/login', (req, res) => {
 
 app.get("/urls", (req, res) => {
   const user = userCookieId(req);
-  const templateVars = { urls: urlDatabase,
-     user: user,
-    };
+  if (!user) {
+    return res.redirect("/login");
+  }
+  const templateVars = { urls: urlDatabase, user: user };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
   const user = userCookieId(req);
+  if (!user) {
+    return res.redirect('/login');
+  }
   const templateVars = {
     user: user,
   };
@@ -113,8 +123,9 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
   const longURL = urlDatabase[id];
+  const user = userCookieId(req)
   const templateVars = {
-    username: req.cookies["username"],
+    user: user,
     id: id,
     longURL: longURL,
   };
@@ -133,8 +144,13 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  const longURL = req.body.longURL;
+  const user = userCookieId(req);
+  if (!user) {
+    return res.status(403).send("You must be logged in to create a new URL");
+  }
+
   const shortURL = generateRandomString();
+  const longURL = req.body.longURL;
   urlDatabase[shortURL] = longURL;
   res.redirect(`/urls/${shortURL}`);
 });

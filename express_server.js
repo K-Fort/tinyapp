@@ -2,6 +2,7 @@
 const express = require("express");
 const bcrypt = require('bcryptjs');
 const cookieSession = require('cookie-session')
+const getUserByEmail = require('./helpers')
 const app = express();
 const PORT = 8080; // Set the port to 8080
 
@@ -49,15 +50,6 @@ const generateRandomString = () =>
       .charAt(Math.floor(Math.random() * 62))
   ).join('');
 
-// Finds a user by their email address in the users database
-const getUserByEmail = (email) => {
-  for (const userID in users) {
-    if (users[userID].email === email) {
-      return users[userID];
-    }
-  }
-  return null;
-};
 
 // Gets the user object associated with the cookie
 const userCookieId = (req) => {

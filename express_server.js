@@ -1,5 +1,6 @@
 // Import the necessary modules
 const express = require("express");
+const bcrypt = require('bcryptjs');
 const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = 8080; // Set the port to 8080
@@ -39,9 +40,11 @@ app.use(cookieParser()); // Parse cookies
 // Helper functions
 
 // Generates a random 6-character string
-const generateRandomString = () => {
-  return Math.random().toString(36).substr(2, 6);
-};
+const generateRandomString = () =>
+  Array.from({ length: 6 }, () =>
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+      .charAt(Math.floor(Math.random() * 62))
+  ).join('');
 
 // Finds a user by their email address in the users database
 const getUserByEmail = (email) => {
@@ -93,10 +96,12 @@ app.post('/register', (req, res) => {
     return res.status(400).send('Email already registered'); // Check if email is already registered
   }
 
+  const hashedPassword = bcrypt.hashSync(password, 10);
   const userID = generateRandomString(); // Generate a new user ID
-  const newUser = { id: userID, email, password }; // Create new user object
+  const newUser = { id: userID, email, password: hashedPassword }; // Create new user object
   users[userID] = newUser; // Add new user to the users database
 
+  
   res.cookie('user_id', userID); // Set a cookie with the user ID
   res.redirect('/urls'); // Redirect to URLs page
 });
@@ -114,9 +119,14 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
   const user = getUserByEmail(email); // Find user by email
+  const hashedPassword = bcrypt.hashSync(password, 10);
 
   if (!user || user.password !== password) {
     return res.status(403).send("Invalid credentials"); // Check if email or password is incorrect
+  }
+
+  if (!bcrypt.compareSync(password, user.password)) {
+    return res.status(403).send("Invalid credentials");
   }
 
   res.cookie('user_id', user.id); // Set a cookie with the user ID
